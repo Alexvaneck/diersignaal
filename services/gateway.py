@@ -24,7 +24,7 @@ class Gateway(Handler):
         self.end_headers();self.wfile.write(payload)
     def do_POST(self):
         p=self.route()
-        paths={'/api/login':(IP,'/login',False),'/api/logout':(IP,'/logout',False),'/api/lookup':(SP,'/lookup',True),'/api/signals':(SP,'/create',True)}
+        paths={'/api/login':(IP,'/login',False),'/api/register':(IP,'/register',False),'/api/password-reset':(IP,'/password-reset',False),'/api/logout':(IP,'/logout',False),'/api/admin/users/list':(IP,'/admin/users/list',True),'/api/admin/users/status':(IP,'/admin/users/status',True),'/api/admin/users/reset-code':(IP,'/admin/users/reset-code',True),'/api/admin/animals/list':(SP,'/admin/animals/list',True),'/api/admin/animals/create':(SP,'/admin/animals/create',True),'/api/admin/animals/update':(SP,'/admin/animals/update',True),'/api/lookup':(SP,'/lookup',True),'/api/signals':(SP,'/create',True)}
         if p not in paths:return self.error(404,'Niet gevonden')
         port,target,internal=paths[p]
         return self.proxy('POST',f'http://127.0.0.1:{port}{target}',internal)

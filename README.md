@@ -13,11 +13,20 @@ python3 run.py
 
 Open http://127.0.0.1:8100
 
-Demo: `arts.west` / `PilotDemo!2026`
+Demo-dierenarts: `arts.west` / `PilotDemo!2026`. Demo-beheerder: `beheerder` / `PilotDemo!2026`. Stel voor de demo eventueel `DIERSIGNAAL_ADMIN_PASSWORD` in vóór de eerste start.
 
 Chipnummer `999000000000001`; consult `CONS-W-1001`.
 Tweede account: `arts.noord`, goedgekeurde consultreferentie `CONS-N-3001`.
 `reviewer` heeft geen toegang tot dierdossiers. Alle demo-accounts delen uitsluitend voor deze lokale pilot het wachtwoord; voor echte toegang is dit onacceptabel.
+
+## Account- en beheerdemo
+
+- Dierenartsen kunnen via **Account aanvragen** een account registreren. Het account krijgt alleen de dierenartsrol en blijft inactief tot `beheerder` het goedkeurt.
+- De beheerder kan dierenartsaccounts goedkeuren/deactiveren, en een eenmalige herstelcode van 15 minuten laten genereren. De gebruiker vult die code in bij **Wachtwoord vergeten?**. Geef herstelcodes alleen rechtstreeks en gecontroleerd door.
+- In **Beheer** kan de beheerder fictieve honden- en kattendossiers bekijken, toevoegen en aanpassen. Chipnummers en bestaande signalen zijn niet verwijderbaar via de demo.
+- `DIERSIGNAAL_ADMIN_PASSWORD` wordt alleen bij het aanmaken van een nieuw beheerdersaccount toegepast; wijzig een bestaand wachtwoord via de herstelprocedure.
+
+Deze beheerschermen en accountflows zijn uitsluitend onderdeel van de lokale fictieve pilot. Er is geen e-mailbezorging, identiteits-/beroepsverificatie, multi-factor-authenticatie of productiegeschikt accountbeheer. Stel deze demo niet bloot aan internet en voer geen echte gegevens in.
 
 ## Automatische tests
 

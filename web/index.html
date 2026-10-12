@@ -1,1 +1,95 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>DierSignaal | Veilige pilot</title><link rel="stylesheet" href="/style.css"></head><body><div id="login" class="login-layout"><section class="story"><div class="wordmark">dier<span>signaal</span><small>VETERINAIR INZICHT</small></div><div class="story-content"><span class="kicker light">BETER HERKENNEN. ZORGVULDIG HANDELEN.</span><h1>Een signaal zien is het begin.<br><em>Het hele verhaal begrijpen</em> maakt het verschil.</h1><p>DierSignaal helpt dierenartsen om relevante observaties over meerdere behandelcontacten zorgvuldig te beoordelen. Geen automatische beschuldiging, maar context voor professioneel handelen.</p><div class="story-points"><span>01 · Gecontroleerde toegang</span><span>02 · Feiten gescheiden van interpretatie</span><span>03 · Menselijke beoordeling</span></div></div><div class="story-footer">CONCEPTPILOT · UITSLUITEND FICTIEVE GEGEVENS</div></section><section class="login-side"><div class="login-card"><div class="seal">DS<span>✳</span></div><span class="kicker">BEVEILIGDE OMGEVING</span><h2>Welkom terug.</h2><p>Log in om fictieve consultgegevens te bekijken en signalen zorgvuldig vast te leggen.</p><form id="login-form"><label>Gebruikersnaam<input id="username" autocomplete="username" value="arts.west" required></label><label>Wachtwoord<input id="password" autocomplete="current-password" type="password" required placeholder="Voer demo-wachtwoord in"></label><button class="primary" type="submit">Inloggen <span>→</span></button></form><div id="login-error" class="error" role="alert"></div><div class="demo-access"><strong>Probeer de demonstratie</strong><p>Gebruiker: <code>arts.west</code><br>Wachtwoord: <code>PilotDemo!2026</code></p><small>Alle personen, chipnummers en consulten zijn verzonnen. Geen echte persoonsgegevens invoeren.</small></div></div><div class="login-bottom">Ontworpen voor transparantie, menselijke controle en juridische toetsing.</div></section></div><div id="workspace" class="workspace hidden"><aside class="sidebar"><div class="wordmark">dier<span>signaal</span><small>VETERINAIR INZICHT</small></div><div class="menu-caption">WERKOMGEVING</div><nav><button class="nav active" data-tab="overview">⌂ &nbsp; Overzicht</button><button class="nav" data-tab="lookup">◎ &nbsp; Chipnummer controleren</button><button class="nav" data-tab="record">✎ &nbsp; Signaal vastleggen</button><button class="nav" data-tab="safety">◇ &nbsp; Privacy & controle</button></nav><div class="sidebar-bottom"><span class="dot"></span> DEMONSTRATIE<br><small>Geen echte dierdossiers of persoonsgegevens gebruiken.</small></div></aside><div class="main"><header><div><span class="kicker">DIERSIGNAAL / PILOTOMGEVING</span><div class="header-title" id="user-name">Aangemeld</div></div><div class="head-right"><span class="environment">● FICTIEVE DATA</span><button class="logout" id="logout">Uitloggen ↗</button></div></header><main id="content" class="content"></main><footer>Deze pilot ondersteunt uitsluitend technisch en juridisch onderzoek. Niet gebruiken voor patiëntenzorg of meldingen.</footer></div></div><script src="/app.js" defer></script></body></html>
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>DierSignaal | Veilige pilot</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="login" class="login-layout">
+    <section class="story">
+      <div class="wordmark">dier<span>signaal</span><small>VETERINAIR INZICHT</small></div>
+      <div class="story-content">
+        <span class="kicker light">BETER HERKENNEN. ZORGVULDIG HANDELEN.</span>
+        <h1>Een signaal zien is het begin.<br><em>Het hele verhaal begrijpen</em> maakt het verschil.</h1>
+        <p>DierSignaal helpt dierenartsen om relevante observaties over meerdere behandelcontacten zorgvuldig te beoordelen. Geen automatische beschuldiging, maar context voor professioneel handelen.</p>
+        <div class="story-points"><span>01 · Gecontroleerde toegang</span><span>02 · Feiten gescheiden van interpretatie</span><span>03 · Menselijke beoordeling</span></div>
+      </div>
+      <div class="story-footer">CONCEPTPILOT · UITSLUITEND FICTIEVE GEGEVENS</div>
+    </section>
+    <section class="login-side">
+      <div class="login-card">
+        <div class="seal">DS<span>✳</span></div>
+        <span class="kicker">BEVEILIGDE OMGEVING</span>
+        <section id="login-panel">
+          <h2>Welkom terug.</h2>
+          <p>Log in om fictieve consultgegevens te bekijken en signalen zorgvuldig vast te leggen.</p>
+          <form id="login-form">
+            <label>Gebruikersnaam<input id="username" autocomplete="username" value="arts.west" required></label>
+            <label>Wachtwoord<input id="password" autocomplete="current-password" type="password" required placeholder="Voer demo-wachtwoord in"></label>
+            <button class="primary" type="submit">Inloggen <span>→</span></button>
+          </form>
+          <div id="login-error" class="error" role="alert"></div>
+          <div class="login-links"><button type="button" id="show-reset">Wachtwoord vergeten?</button><button type="button" id="show-register">Account aanvragen</button></div>
+          <div class="demo-access">
+            <strong>Probeer de demonstratie</strong>
+            <p>Gebruiker: <code>arts.west</code><br>Wachtwoord: <code>PilotDemo!2026</code></p>
+            <small>Beheerder: <code>beheerder</code> met hetzelfde demo-wachtwoord. Alleen fictieve data gebruiken.</small>
+          </div>
+        </section>
+        <section id="register-panel" class="hidden">
+          <h2>Account aanvragen.</h2>
+          <p>Registraties krijgen uitsluitend de dierenartsrol en moeten vóór gebruik door beheer worden goedgekeurd.</p>
+          <form id="register-form" class="auth-form">
+            <label>Gebruikersnaam<input name="username" autocomplete="username" pattern="[A-Za-z0-9._-]{3,64}" required></label>
+            <label>Naam<input name="display" maxlength="100" required></label>
+            <label>Praktijknaam<input name="practice_id" maxlength="100" required></label>
+            <label>Wachtwoord (minimaal 12 tekens)<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="200" required></label>
+            <button class="primary">Registratie aanvragen →</button>
+          </form>
+          <div id="register-result" class="error" role="status"></div>
+          <button type="button" class="text-link back-login">Terug naar inloggen</button>
+        </section>
+        <section id="reset-panel" class="hidden">
+          <h2>Wachtwoord herstellen.</h2>
+          <p>Vraag een eenmalige herstelcode aan de beheerder. De code verloopt na 15 minuten.</p>
+          <form id="reset-form" class="auth-form">
+            <label>Gebruikersnaam<input name="username" autocomplete="username" required></label>
+            <label>Eenmalige herstelcode<input name="code" autocomplete="one-time-code" required></label>
+            <label>Nieuw wachtwoord (minimaal 12 tekens)<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="200" required></label>
+            <button class="primary">Wachtwoord wijzigen →</button>
+          </form>
+          <div id="reset-result" class="error" role="status"></div>
+          <button type="button" class="text-link back-login">Terug naar inloggen</button>
+        </section>
+      </div>
+      <div class="login-bottom">Ontworpen voor transparantie, menselijke controle en juridische toetsing.</div>
+    </section>
+  </div>
+  <div id="workspace" class="workspace hidden">
+    <aside class="sidebar">
+      <div class="wordmark">dier<span>signaal</span><small>VETERINAIR INZICHT</small></div>
+      <div class="menu-caption">WERKOMGEVING</div>
+      <nav>
+        <button class="nav active" data-tab="overview">⌂ &nbsp; Overzicht</button>
+        <button class="nav" data-tab="lookup">◎ &nbsp; Chipnummer controleren</button>
+        <button class="nav" data-tab="record">✎ &nbsp; Signaal vastleggen</button>
+        <button class="nav" data-tab="safety">◇ &nbsp; Privacy & controle</button>
+        <button class="nav hidden" id="admin-nav" data-tab="admin">⚙ &nbsp; Beheer</button>
+      </nav>
+      <div class="sidebar-bottom"><span class="dot"></span> DEMONSTRATIE<br><small>Geen echte dierdossiers of persoonsgegevens gebruiken.</small></div>
+    </aside>
+    <div class="main">
+      <header>
+        <div><span class="kicker">DIERSIGNAAL / PILOTOMGEVING</span><div class="header-title" id="user-name">Aangemeld</div></div>
+        <div class="head-right"><span class="environment">● FICTIEVE DATA</span><button class="logout" id="logout">Uitloggen ↗</button></div>
+      </header>
+      <main id="content" class="content"></main>
+      <footer>Deze pilot ondersteunt uitsluitend technisch en juridisch onderzoek. Niet gebruiken voor patiëntenzorg of meldingen.</footer>
+    </div>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
