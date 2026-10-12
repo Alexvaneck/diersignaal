@@ -1,5 +1,6 @@
 'use strict';
 let token=null,user=null,currentChip=null,currentConsult=null;
+let loginChallengeId=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -29,21 +30,26 @@ function page(id){
   window.scrollTo(0,0);
 }
 function authPanel(id){
-  ['login-panel','register-panel','reset-panel'].forEach(panel=>$(panel).classList.toggle('hidden',panel!==id));
+  ['login-panel','mfa-panel','register-panel','verify-email-panel','reset-panel'].forEach(panel=>$(panel).classList.toggle('hidden',panel!==id));
   document.querySelectorAll('.error').forEach(el=>el.textContent='');
 }
 async function renderAdmin(){
-  $('content').innerHTML=heading('BEHEER','Accounts en dieren beheren.','Alleen het beheerdersaccount kan dierenartsregistraties goedkeuren en fictieve honden- en kattendossiers onderhouden.')+`<div id="admin-feedback" class="alert hidden"></div><div class="two admin-columns"><section class="card"><div class="overline">DIERENARTSEN</div><h2>Accountbeheer</h2><p>Nieuwe registraties zijn niet actief tot ze zijn goedgekeurd.</p><div id="admin-users" class="table-wrap">Laden…</div><h3 id="vet-form-title">Dierenartsgegevens aanpassen</h3><form id="vet-form" class="form hidden"><label>Gebruikersnaam<input name="username" readonly required></label><label>Naam<input name="display" maxlength="100" required></label><label>Praktijknaam<input name="practice_id" maxlength="100" required></label><button class="primary">Gegevens opslaan →</button></form></section><section class="card"><div class="overline">HONDEN & KATTEN</div><h2>Dierbeheer</h2><div id="admin-animals" class="table-wrap">Laden…</div><h3 id="animal-form-title">Dier toevoegen</h3><form id="animal-form" class="form"><label>Chipnummer (15 cijfers)<input name="chip" pattern="[0-9]{15}" inputmode="numeric" required></label><label>Naam<input name="name" maxlength="100" required></label><label>Diersoort<select name="species" required><option value="Hond">Hond</option><option value="Kat">Kat</option></select></label><label>Ras<input name="breed" maxlength="100" required></label><button class="primary">Dier toevoegen →</button><button type="button" id="cancel-animal-edit" class="secondary hidden">Wijzigen annuleren</button></form></section></div><div class="alert warn">Beheeracties zijn bedoeld voor de fictieve pilot. Een eenmaal gekoppeld chipnummer kan niet worden verwijderd of gewijzigd.</div>`;
+  $('content').innerHTML=heading('BEHEER','Accounts en dieren beheren.','Alleen het beheerdersaccount kan dierenartsregistraties goedkeuren en fictieve honden- en kattendossiers onderhouden.')+`<div id="admin-feedback" class="alert hidden"></div><div class="two admin-columns"><section class="card"><div class="overline">DIERENARTSEN</div><h2>Accountbeheer</h2><p>Bevestig e-mailadressen voordat je accounts goedkeurt. Verifieer het adres via de aparte e-mailcode.</p><div id="admin-users" class="table-wrap">Laden…</div><h3 id="vet-form-title">Dierenartsgegevens aanpassen</h3><form id="vet-form" class="form hidden"><label>Gebruikersnaam<input name="username" readonly required></label><label>Naam<input name="display" maxlength="100" required></label><label>Praktijknaam<input name="practice_id" maxlength="100" required></label><label>E-mailadres<input name="email" type="email" maxlength="254" required></label><button class="primary">Gegevens opslaan →</button></form></section><section class="card"><div class="overline">HONDEN & KATTEN</div><h2>Dierbeheer</h2><div id="admin-animals" class="table-wrap">Laden…</div><h3 id="animal-form-title">Dier toevoegen</h3><form id="animal-form" class="form"><label>Chipnummer (15 cijfers)<input name="chip" pattern="[0-9]{15}" inputmode="numeric" required></label><label>Naam<input name="name" maxlength="100" required></label><label>Diersoort<select name="species" required><option value="Hond">Hond</option><option value="Kat">Kat</option></select></label><label>Ras<input name="breed" maxlength="100" required></label><button class="primary">Dier toevoegen →</button><button type="button" id="cancel-animal-edit" class="secondary hidden">Wijzigen annuleren</button></form></section></div><div class="alert warn">Beheeracties zijn bedoeld voor de fictieve pilot. Een eenmaal gekoppeld chipnummer kan niet worden verwijderd of gewijzigd.</div>`;
   try{
     const [users,animals]=await Promise.all([api('admin/users/list',{}),api('admin/animals/list',{})]);
-    $('admin-users').innerHTML=users.users.length?`<table><thead><tr><th>Account</th><th>Praktijk</th><th>Status</th><th>Acties</th></tr></thead><tbody>${users.users.map(v=>`<tr><td>${esc(v.display)}<small>${esc(v.id)}</small></td><td>${esc(v.practice_id)}</td><td>${esc(v.status)}</td><td class="actions"><button class="small-button" data-edit-vet data-username="${esc(v.id)}" data-display="${esc(v.display)}" data-practice="${esc(v.practice_id)}">Gegevens</button>${v.active?`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="false">Deactiveren</button><button class="small-button" data-reset-code="${esc(v.id)}">Herstelcode</button>`:`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="true">Goedkeuren</button>`}</td></tr>`).join('')}</tbody></table>`:'Geen dierenartsaccounts.';
+    $('admin-users').innerHTML=users.users.length?`<table><thead><tr><th>Account</th><th>E-mailadres</th><th>Status</th><th>Acties</th></tr></thead><tbody>${users.users.map(v=>`<tr><td>${esc(v.display)}<small>${esc(v.id)} · ${esc(v.practice_id)}</small></td><td>${esc(v.email||'Niet ingesteld')}<small>${v.email_verified?'Bevestigd':'Niet bevestigd'}</small></td><td>${esc(v.status)}</td><td class="actions"><button class="small-button" data-edit-vet data-username="${esc(v.id)}" data-display="${esc(v.display)}" data-practice="${esc(v.practice_id)}" data-email="${esc(v.email||'')}">Gegevens</button>${!v.email_verified&&v.email?`<button class="small-button" data-email-code="${esc(v.id)}">Verificatiecode sturen</button>`:''}${v.active?`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="false">Deactiveren</button><button class="small-button" data-reset-code="${esc(v.id)}">Herstelcode</button>`:`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="true">Goedkeuren</button>`}</td></tr>`).join('')}</tbody></table>`:'Geen dierenartsaccounts.';
     $('admin-animals').innerHTML=animals.animals.length?`<table><thead><tr><th>Dier</th><th>Soort / ras</th><th>Chipnummer</th><th></th></tr></thead><tbody>${animals.animals.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.species)} · ${esc(a.breed)}</td><td>${esc(a.chip)}</td><td><button class="small-button" data-edit-animal data-chip="${esc(a.chip)}" data-name="${esc(a.name)}" data-species="${esc(a.species)}" data-breed="${esc(a.breed)}">Bewerken</button></td></tr>`).join('')}</tbody></table>`:'Nog geen dieren.';
   }catch(err){$('admin-feedback').textContent=err.message;$('admin-feedback').classList.remove('hidden');}
 }
 $('login-form').addEventListener('submit',async e=>{
   e.preventDefault();$('login-error').textContent='';
-  try{const result=await api('login',{username:$('username').value,password:$('password').value});token=result.token;user=result.user;$('password').value='';start();}
+  try{const result=await api('login',{username:$('username').value,password:$('password').value});$('password').value='';loginChallengeId=result.challenge_id;$('mfa-form').elements.code.value='';$('mfa-notice').textContent=result.message;authPanel('mfa-panel');}
   catch(err){$('login-error').textContent=err.message;}
+});
+$('mfa-form').addEventListener('submit',async e=>{
+  e.preventDefault();$('mfa-result').textContent='';
+  try{const result=await api('login/mfa',{challenge_id:loginChallengeId,code:e.currentTarget.elements.code.value});token=result.token;user=result.user;loginChallengeId=null;start();}
+  catch(err){$('mfa-result').textContent=err.message;}
 });
 $('register-form').addEventListener('submit',async e=>{
   e.preventDefault();const form=e.currentTarget;const data=Object.fromEntries(new FormData(form));
@@ -55,12 +61,19 @@ $('reset-form').addEventListener('submit',async e=>{
   try{const result=await api('password-reset',data);$('reset-result').textContent=result.message;form.reset();}
   catch(err){$('reset-result').textContent=err.message;}
 });
+$('verify-email-form').addEventListener('submit',async e=>{
+  e.preventDefault();const form=e.currentTarget;const data=Object.fromEntries(new FormData(form));
+  try{const result=await api('email/verify',data);$('email-verify-result').textContent=result.message;form.reset();}
+  catch(err){$('email-verify-result').textContent=err.message;}
+});
 $('show-register').addEventListener('click',()=>authPanel('register-panel'));
 $('show-reset').addEventListener('click',()=>authPanel('reset-panel'));
+$('show-verify-email').addEventListener('click',()=>authPanel('verify-email-panel'));
 document.querySelectorAll('.back-login').forEach(button=>button.addEventListener('click',()=>authPanel('login-panel')));
 $('logout').addEventListener('click',async()=>{
   try{await api('logout',{});}catch{}
   token=null;user=null;currentChip=null;currentConsult=null;
+  loginChallengeId=null;
   $('workspace').classList.add('hidden');$('login').classList.remove('hidden');$('password').value='';authPanel('login-panel');
 });
 document.addEventListener('click',async e=>{
@@ -78,6 +91,12 @@ document.addEventListener('click',async e=>{
     catch(err){$('admin-feedback').textContent=err.message;$('admin-feedback').classList.remove('hidden');}
     return;
   }
+  const emailButton=e.target.closest('[data-email-code]');
+  if(emailButton&&token&&user.role==='admin'){
+    try{const result=await api('admin/users/email-code',{username:emailButton.dataset.emailCode});$('admin-feedback').textContent=result.message;$('admin-feedback').classList.remove('hidden');}
+    catch(err){$('admin-feedback').textContent=err.message;$('admin-feedback').classList.remove('hidden');}
+    return;
+  }
   const editButton=e.target.closest('[data-edit-animal]');
   if(editButton&&token&&user.role==='admin'){
     const form=$('animal-form');
@@ -90,7 +109,7 @@ document.addEventListener('click',async e=>{
   const vetButton=e.target.closest('[data-edit-vet]');
   if(vetButton&&token&&user.role==='admin'){
     const form=$('vet-form');
-    form.elements.username.value=vetButton.dataset.username;form.elements.display.value=vetButton.dataset.display;form.elements.practice_id.value=vetButton.dataset.practice;
+    form.elements.username.value=vetButton.dataset.username;form.elements.display.value=vetButton.dataset.display;form.elements.practice_id.value=vetButton.dataset.practice;form.elements.email.value=vetButton.dataset.email;
     form.classList.remove('hidden');form.scrollIntoView({behavior:'smooth',block:'start'});
   }
 });

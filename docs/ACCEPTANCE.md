@@ -19,5 +19,6 @@
 - [ ] DPIA-noodzaak beoordeeld; eventuele DPIA en restrisico formeel vastgesteld vóór echte gegevensverwerking.
 - [ ] Publieke uitleg, initiatiefnemersbiografieën, contactroute en status van het meldpunt door betrokkenen gecontroleerd.
 - [ ] Pilotaccountverificatie, hosting, TLS, MFA, rate limits, incidentrespons en herstel aantoonbaar gereed.
+- [ ] Mailboxbezit en dierenartsidentiteit onafhankelijk geverifieerd; e-mail-MFA is geen vervanging voor phishingbestendige MFA.
 
 De aanvullende criteria zijn voorbereidingspunten, geen verklaring dat de pilot gereed of rechtmatig is. Zie `docs/PILOT_PROTOCOL.md` en `docs/DPIA_PREPARATION.md`.

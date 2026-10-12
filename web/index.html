@@ -25,20 +25,30 @@
         <span class="kicker">BEVEILIGDE OMGEVING</span>
         <section id="login-panel">
           <h2>Welkom terug.</h2>
-          <p>Log in om fictieve consultgegevens te bekijken en signalen zorgvuldig vast te leggen.</p>
+          <p>Log in met je wachtwoord en de eenmalige code die we naar je bevestigde e-mailadres sturen.</p>
           <form id="login-form">
             <label>Gebruikersnaam<input id="username" autocomplete="username" value="arts.west" required></label>
             <label>Wachtwoord<input id="password" autocomplete="current-password" type="password" required placeholder="Voer demo-wachtwoord in"></label>
             <button class="primary" type="submit">Inloggen <span>→</span></button>
           </form>
           <div id="login-error" class="error" role="alert"></div>
-          <div class="login-links"><button type="button" id="show-reset">Wachtwoord vergeten?</button><button type="button" id="show-register">Account aanvragen</button></div>
+          <div class="login-links"><button type="button" id="show-reset">Wachtwoord vergeten?</button><button type="button" id="show-register">Account aanvragen</button><button type="button" id="show-verify-email">E-mail bevestigen</button></div>
           <a class="public-link" href="/about">Over DierSignaal & meedoen →</a>
           <div class="demo-access">
             <strong>Probeer de demonstratie</strong>
             <p>Gebruiker: <code>arts.west</code><br>Wachtwoord: <code>PilotDemo!2026</code></p>
             <small>Beheerder: <code>beheerder</code> met hetzelfde demo-wachtwoord. Alleen fictieve data gebruiken.</small>
           </div>
+        </section>
+        <section id="mfa-panel" class="hidden">
+          <h2>Controleer je e-mail.</h2>
+          <p id="mfa-notice">We hebben een eenmalige inlogcode gestuurd. De code verloopt na 10 minuten.</p>
+          <form id="mfa-form" class="auth-form">
+            <label>Inlogcode (6 cijfers)<input name="code" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" maxlength="6" required></label>
+            <button class="primary">Bevestig en log in →</button>
+          </form>
+          <div id="mfa-result" class="error" role="alert"></div>
+          <button type="button" class="text-link back-login">Terug naar inloggen</button>
         </section>
         <section id="register-panel" class="hidden">
           <h2>Account aanvragen.</h2>
@@ -47,10 +57,22 @@
             <label>Gebruikersnaam<input name="username" autocomplete="username" pattern="[A-Za-z0-9._-]{3,64}" required></label>
             <label>Naam<input name="display" maxlength="100" required></label>
             <label>Praktijknaam<input name="practice_id" maxlength="100" required></label>
+            <label>E-mailadres<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
             <label>Wachtwoord (minimaal 12 tekens)<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="200" required></label>
             <button class="primary">Registratie aanvragen →</button>
           </form>
           <div id="register-result" class="error" role="status"></div>
+          <button type="button" class="text-link back-login">Terug naar inloggen</button>
+        </section>
+        <section id="verify-email-panel" class="hidden">
+          <h2>Bevestig je e-mailadres.</h2>
+          <p>Voer de gebruikersnaam en de verificatiecode in die beheer naar je e-mailadres heeft gestuurd.</p>
+          <form id="verify-email-form" class="auth-form">
+            <label>Gebruikersnaam<input name="username" autocomplete="username" required></label>
+            <label>Verificatiecode (6 cijfers)<input name="code" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" maxlength="6" required></label>
+            <button class="primary">E-mailadres bevestigen →</button>
+          </form>
+          <div id="email-verify-result" class="error" role="status"></div>
           <button type="button" class="text-link back-login">Terug naar inloggen</button>
         </section>
         <section id="reset-panel" class="hidden">
