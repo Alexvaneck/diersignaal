@@ -67,7 +67,7 @@ class TestPilot(unittest.TestCase):
         cls.gateway,cls.identity,cls.signals=sorted(ports)
         cls.emails={'arts.west':'west@example.test','arts.noord':'north@example.test','reviewer':'reviewer@example.test','beheerder':'admin@example.test','new.vet':'new@example.test'}
         cls.tokens={}
-        cls.env=os.environ.copy();cls.env.update(DIERSIGNAAL_DATA=cls.temp.name,DIERSIGNAAL_INTERNAL_SECRET='integration-test-only-secret',DIERSIGNAAL_MFA_SECRET='integration-test-only-mfa-key',DIERSIGNAAL_SMTP_HOST='127.0.0.1',DIERSIGNAAL_SMTP_PORT=str(cls.mail_port),DIERSIGNAAL_SMTP_FROM='noreply@example.test',DIERSIGNAAL_SMTP_CA=str(cls.cert),DIERSIGNAAL_ADMIN_EMAIL=cls.emails['beheerder'],DIERSIGNAAL_EMAIL_ARTS_WEST=cls.emails['arts.west'],DIERSIGNAAL_EMAIL_ARTS_NOORD=cls.emails['arts.noord'],DIERSIGNAAL_EMAIL_REVIEWER=cls.emails['reviewer'],GATEWAY_PORT=str(cls.gateway),IDENTITY_PORT=str(cls.identity),SIGNALS_PORT=str(cls.signals))
+        cls.env=os.environ.copy();cls.env.update(DIERSIGNAAL_DATA=cls.temp.name,DIERSIGNAAL_INTERNAL_SECRET='integration-test-only-secret',DIERSIGNAAL_MFA_SECRET='integration-test-only-mfa-secret-long-enough-0123456789',DIERSIGNAAL_SMTP_HOST='127.0.0.1',DIERSIGNAAL_SMTP_PORT=str(cls.mail_port),DIERSIGNAAL_SMTP_FROM='noreply@example.test',DIERSIGNAAL_SMTP_CA=str(cls.cert),DIERSIGNAAL_ADMIN_EMAIL=cls.emails['beheerder'],DIERSIGNAAL_EMAIL_ARTS_WEST=cls.emails['arts.west'],DIERSIGNAAL_EMAIL_ARTS_NOORD=cls.emails['arts.noord'],DIERSIGNAAL_EMAIL_REVIEWER=cls.emails['reviewer'],GATEWAY_PORT=str(cls.gateway),IDENTITY_PORT=str(cls.identity),SIGNALS_PORT=str(cls.signals))
         cls.procs=[]
         for mod in ['identity','signals','gateway']:
             cls.procs.append(subprocess.Popen([sys.executable,'-m','services.'+mod],env=cls.env,cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE))
@@ -127,13 +127,13 @@ class TestPilot(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as error:
             urllib.request.urlopen(f'http://127.0.0.1:{self.gateway}/services/identity.py',timeout=4)
         self.assertEqual(error.exception.code,404)
-    def test_99_mfa_is_required_and_attempts_are_limited(self):
-        status,challenge=self.call('login',{'username':'arts.west','password':'ChangedDemoPass!2026'})
+    def test_08_mfa_is_required_and_attempts_are_limited(self):
+        status,challenge=self.call('login',{'username':'reviewer','password':'PilotDemo!2026'})
         self.assertEqual(status,200)
         self.assertTrue(challenge['mfa_required'])
         self.assertNotIn('token',challenge)
         recipient,body=self.mail_sink.messages.get(timeout=4)
-        self.assertEqual(recipient,self.emails['arts.west'])
+        self.assertEqual(recipient,self.emails['reviewer'])
         code=re.search(r'code is: ([0-9]{6})',body).group(1)
         self.assertNotIn(code,str(challenge))
         wrong='999999' if code!='999999' else '999998'
@@ -173,6 +173,8 @@ class TestPilot(unittest.TestCase):
         self.assertEqual(self.call('introspect',{},self.login())[0],404)
     def test_12_registration_requires_admin_approval(self):
         payload={'username':'new.vet','display':'Dr. Demo','practice_id':'demo-practice','email':self.emails['new.vet'],'password':'SecureDemoPass!2026','role':'admin'}
+        invalid={**payload,'username':'invalid.email','email':'victim@example.test,attacker@example.test'}
+        self.assertEqual(self.call('register',invalid)[0],400)
         status,result=self.call('register',payload)
         self.assertEqual(status,201)
         self.assertEqual(result['status'],'pending')

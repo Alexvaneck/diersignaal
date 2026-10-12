@@ -62,7 +62,7 @@ Leg per gegevenscategorie vast: doel, bron, grondslag, toegangsgroep, ontvangers
 
 ## 6. Beveiliging, incidenten en beheer
 
-De huidige demo heeft geen productiegeschikte identiteitsverificatie, MFA, rate limiting, TLS-inrichting, centrale onveranderbare logging of operationeel herstelproces. Deze punten zijn **no-go's** voor echte data. Voor een pilot met persoonsgegevens zijn minimaal nodig: goedgekeurde hosting en servicegrenzen, unieke geverifieerde accounts, sterke authenticatie, least privilege, beveiligde back-ups, geteste herstelprocedure, bewaartermijnen, monitoring, logging, incidentrespons, contact- en escalatieroutes en passende contractuele afspraken.
+De huidige demo biedt, als SMTP/TLS is ingericht, een e-mailcode na het wachtwoord. Dat is geen phishingbestendige MFA en geen productiegeschikte identiteits- of beroepsverificatie. Ook ontbreken IP-rate limiting, productiehosting/TLS voor de webdienst, centrale onveranderbare logging en een operationeel herstelproces. Deze punten zijn **no-go's** voor echte data. Voor een pilot met persoonsgegevens zijn minimaal nodig: goedgekeurde hosting en servicegrenzen, unieke geverifieerde accounts, sterke authenticatie, least privilege, beveiligde back-ups, geteste herstelprocedure, bewaartermijnen, monitoring, logging, incidentrespons, contact- en escalatieroutes en passende contractuele afspraken.
 
 Leg vóór start vast wie incidenten ontvangt, hoe toegang onmiddellijk kan worden ingetrokken, wie beoordeelt of betrokkenen/toezichthouder moeten worden geïnformeerd en hoe bewijs wordt bewaard.
 

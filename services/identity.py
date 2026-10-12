@@ -38,16 +38,19 @@ def init():
             if configured_email:c.execute("UPDATE users SET email=?,email_verified=1 WHERE id=? AND email=''",(configured_email,username))
 def digest(token): return hashlib.sha256(token.encode()).hexdigest()
 def email_valid(value):
-    return len(value)<=254 and re.fullmatch(r"[^@\s<>]+@[^@\s<>]+\.[^@\s<>]+",value) is not None
+    if len(value)>254 or value.count('@')!=1:return False
+    local=value.split('@',1)[0]
+    if not local or len(local)>64 or local.startswith('.') or local.endswith('.') or '..' in local:return False
+    return re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+",value) is not None
 def mfa_digest(challenge_id,user_id,code):
     key=os.environ.get('DIERSIGNAAL_MFA_SECRET') or os.environ.get('DIERSIGNAAL_INTERNAL_SECRET','')
-    if not key:raise RuntimeError('MFA challenge secret is not configured')
+    if len(key)<32:raise RuntimeError('MFA challenge secret is not configured')
     return hmac.new(key.encode(),f'{challenge_id}:{user_id}:{code}'.encode(),hashlib.sha256).hexdigest()
 def email_code_digest(challenge_id,user_id,code):
     key=os.environ.get('DIERSIGNAAL_MFA_SECRET') or os.environ.get('DIERSIGNAAL_INTERNAL_SECRET','')
-    if not key:raise RuntimeError('MFA challenge secret is not configured')
+    if len(key)<32:raise RuntimeError('MFA challenge secret is not configured')
     return hmac.new(key.encode(),f'email:{challenge_id}:{user_id}:{code}'.encode(),hashlib.sha256).hexdigest()
-def send_mfa_email(recipient,code):
+def send_mfa_email(recipient,code,purpose='login'):
     host=os.environ.get('DIERSIGNAAL_SMTP_HOST','')
     sender=os.environ.get('DIERSIGNAAL_SMTP_FROM','')
     if not host or not email_valid(sender) or not email_valid(recipient):
@@ -56,10 +59,14 @@ def send_mfa_email(recipient,code):
     ca_file=os.environ.get('DIERSIGNAAL_SMTP_CA')
     context=ssl.create_default_context(cafile=ca_file or None)
     message=EmailMessage()
-    message['Subject']='Je DierSignaal-inlogcode'
+    verifying_email=purpose=='email_verification'
+    message['Subject']='Bevestig je DierSignaal-e-mailadres' if verifying_email else 'Je DierSignaal-inlogcode'
     message['From']=sender
     message['To']=recipient
-    message.set_content(f'Je eenmalige DierSignaal-inlogcode is: {code}\n\nDe code is 10 minuten geldig en kan maximaal vijf keer worden geprobeerd. Deel deze code met niemand. Heb je niet geprobeerd in te loggen, neem dan contact op met de beheerder.')
+    if verifying_email:
+        message.set_content(f'Je eenmalige DierSignaal-e-mailverificatiecode is: {code}\n\nDe code is 15 minuten geldig en kan maximaal vijf keer worden geprobeerd. Deel deze code met niemand.')
+    else:
+        message.set_content(f'Je eenmalige DierSignaal-inlogcode is: {code}\n\nDe code is 10 minuten geldig en kan maximaal vijf keer worden geprobeerd. Deel deze code met niemand. Heb je niet geprobeerd in te loggen, neem dan contact op met de beheerder.')
     with smtplib.SMTP_SSL(host,port,context=context,timeout=10) as smtp:
         username=os.environ.get('DIERSIGNAAL_SMTP_USER','')
         smtp_credential=os.environ.get('DIERSIGNAAL_SMTP_PASSWORD','')
@@ -70,7 +77,7 @@ def send_mfa_email(recipient,code):
 def session(token):
     if not token: return None
     with db('identity.sqlite3') as c:
-        row=c.execute('''SELECT u.id,u.display,u.practice_id,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires>? AND u.active=1''',(digest(token),int(time.time()))).fetchone()
+        row=c.execute('''SELECT u.id,u.display,u.practice_id,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires>? AND u.active=1 AND u.status='approved' AND u.email_verified=1''',(digest(token),int(time.time()))).fetchone()
         return dict(row) if row else None
 class Api(Handler):
     def do_POST(self):
@@ -126,6 +133,7 @@ class Api(Handler):
                 c.execute('UPDATE users SET password_hash=? WHERE id=?',(pw_hash(new_secret),name))
                 c.execute('DELETE FROM password_resets WHERE user_id=?',(name,))
                 c.execute('DELETE FROM sessions WHERE user_id=?',(name,))
+                c.execute('DELETE FROM login_challenges WHERE user_id=?',(name,))
             return self.send_json(200,{'ok':True,'message':'Wachtwoord gewijzigd. Je kunt nu inloggen.'})
         if p=='/admin/users/list':
             if not self.admin(str(data.get('token',''))):return self.error(403,'Alleen beheer heeft toegang')
@@ -145,7 +153,7 @@ class Api(Handler):
                 except RuntimeError:return self.error(503,'E-mailverificatie is tijdelijk niet beschikbaar')
                 c.execute('DELETE FROM email_challenges WHERE user_id=?',(name,))
                 c.execute('INSERT INTO email_challenges VALUES(?,?,?,?,?,0)',(challenge_id,name,code_hash,now+900,now))
-            try:send_mfa_email(row['email'],code)
+            try:send_mfa_email(row['email'],code,'email_verification')
             except Exception:
                 with db('identity.sqlite3') as c:c.execute('DELETE FROM email_challenges WHERE id=?',(challenge_id,))
                 return self.error(503,'E-mail kon niet veilig worden verzonden')
@@ -193,7 +201,7 @@ class Api(Handler):
                 row=c.execute('SELECT * FROM users WHERE id=?',(name,)).fetchone()
                 # Perform hash even when username missing to reduce trivial timing differences.
                 valid=pw_verify(pwd,row['password_hash'] if row else pw_hash('unused'))
-                if not row or not row['active'] or not valid:return self.error(401,'Ongeldige inloggegevens')
+                if not row or not row['active'] or row['status']!='approved' or not valid:return self.error(401,'Ongeldige inloggegevens')
                 if not row['email_verified'] or not email_valid(row['email']):return self.error(403,'Neem contact op met beheer om je e-mailadres te laten bevestigen')
                 now=int(time.time())
                 previous=c.execute('SELECT id,created FROM login_challenges WHERE user_id=?',(name,)).fetchone()
