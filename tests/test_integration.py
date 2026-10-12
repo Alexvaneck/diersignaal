@@ -14,12 +14,21 @@ class TestPilot(unittest.TestCase):
         cls.procs=[]
         for mod in ['identity','signals','gateway']:
             cls.procs.append(subprocess.Popen([sys.executable,'-m','services.'+mod],env=cls.env,cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE))
-        for _ in range(60):
+        for _ in range(120):
             try:
                 with urllib.request.urlopen(f'http://127.0.0.1:{cls.gateway}/',timeout=.4):break
             except Exception:time.sleep(.1)
         else:raise RuntimeError('Gateway start niet: '+str([(p.poll(),p.stderr.read().decode() if p.poll() is not None else 'running') for p in cls.procs]))
-        time.sleep(.2)
+        for _ in range(120):
+            ready=True
+            for port in (cls.identity,cls.signals):
+                with socket.socket() as service:
+                    if service.connect_ex(('127.0.0.1',port))!=0:
+                        ready=False
+                        break
+            if ready:break
+            time.sleep(.1)
+        else:raise RuntimeError('Identity- of signalservice start niet: '+str([(p.poll(),p.stderr.read().decode() if p.poll() is not None else 'running') for p in cls.procs]))
     @classmethod
     def tearDownClass(cls):
         for p in cls.procs:p.terminate()
