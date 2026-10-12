@@ -13,6 +13,8 @@ python3 run.py
 
 Open http://127.0.0.1:8100
 
+De publieke conceptpagina **Over DierSignaal** staat op http://127.0.0.1:8100/about. Deze beschrijft de initiatiefnemers, uitnodiging tot samenwerking en de grenzen van de demonstratie. Controleer biografieën, contactroute en status voordat materiaal extern wordt gedeeld.
+
 Demo-dierenarts: `arts.west` / `PilotDemo!2026`. Demo-beheerder: `beheerder` / `PilotDemo!2026`. Stel voor de demo eventueel `DIERSIGNAAL_ADMIN_PASSWORD` in vóór de eerste start.
 
 Chipnummer `999000000000001`; consult `CONS-W-1001`.
@@ -43,6 +45,13 @@ De tests starten de drie services op tijdelijke poorten en gebruiken een aparte 
 - `services/signals.py`: dieren, observaties, conceptregistraties en auditgebeurtenissen. Vraagt voor **elke** actie expliciete toestemming aan identity.
 - `data/identity.sqlite3` en `data/signals.sqlite3`: strikt gescheiden SQLite-bestanden.
 - `web/`: loginpagina en dashboard zonder afhankelijkheden.
+- `web/about.html`: publieke informatiepagina voor het concept; nog geen operationeel meldpunt.
+
+## Pilotvoorbereiding
+
+- `docs/PILOT_PROTOCOL.md`: conceptprotocol voor een begeleide verkenning met maximaal drie dierenartsen; geen goedkeuring voor verwerking van echte gegevens.
+- `docs/DPIA_PREPARATION.md`: inventarisatie en risico-/besluitenlijst ter voorbereiding van beoordeling door de verantwoordelijke organisatie en deskundigen; geen afgeronde DPIA.
+- `docs/ACCEPTANCE.md`: openstaande criteria. Geen criterium is automatisch voldaan door deze documenten of de demo.
 
 Alle drie services luisteren op `127.0.0.1`; interne API's eisen een tijdens het starten gegenereerd gedeeld geheim. Dit is een demonstratiegrens, **geen security boundary voor een publiek netwerk**. De sessie wordt uitsluitend in JavaScript-geheugen gehouden (verversen logt uit).
 

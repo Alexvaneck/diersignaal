@@ -14,3 +14,10 @@
 - [ ] Penetratietest, dreigingsmodel, hersteltest en security review afgerond.
 - [ ] Bewaar- en verwijderbeleid technisch afgedwongen en gecontroleerd.
 - [ ] Duidelijke procedure voor incidenten, klachten en rechten van betrokkenen.
+- [ ] Verantwoordelijke organisatie, doelen, rechtsgronden, gegevensstromen en ontvangers schriftelijk vastgesteld.
+- [ ] Pilotprotocol met scope, maximaal drie deelnemers, menselijke beoordeling, evaluatie en stopcriteria goedgekeurd.
+- [ ] DPIA-noodzaak beoordeeld; eventuele DPIA en restrisico formeel vastgesteld vóór echte gegevensverwerking.
+- [ ] Publieke uitleg, initiatiefnemersbiografieën, contactroute en status van het meldpunt door betrokkenen gecontroleerd.
+- [ ] Pilotaccountverificatie, hosting, TLS, MFA, rate limits, incidentrespons en herstel aantoonbaar gereed.
+
+De aanvullende criteria zijn voorbereidingspunten, geen verklaring dat de pilot gereed of rechtmatig is. Zie `docs/PILOT_PROTOCOL.md` en `docs/DPIA_PREPARATION.md`.

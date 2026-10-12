@@ -41,6 +41,16 @@ class TestPilot(unittest.TestCase):
         return result['token']
     def access(self,chip='999000000000001',consultation='CONS-W-1001',purpose='clinical_care'):
         return dict(chip=chip,consultation=consultation,purpose=purpose)
+    def test_00_public_pages_are_available_without_login(self):
+        for path,expected in [('/','DierSignaal'),('/about','Ilona van Eck'),('/about.html','Alex van Eck')]:
+            with urllib.request.urlopen(f'http://127.0.0.1:{self.gateway}{path}',timeout=4) as response:
+                page=response.read().decode()
+                self.assertEqual(response.status,200)
+                self.assertIn(expected,page)
+                self.assertEqual(response.headers.get('X-Frame-Options'),'DENY')
+        with self.assertRaises(urllib.error.HTTPError) as error:
+            urllib.request.urlopen(f'http://127.0.0.1:{self.gateway}/services/identity.py',timeout=4)
+        self.assertEqual(error.exception.code,404)
     def test_01_invalid_password(self):
         self.assertEqual(self.call('login',{'username':'arts.west','password':'wrong'})[0],401)
     def test_02_anonymous_denied(self):
