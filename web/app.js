@@ -33,10 +33,10 @@ function authPanel(id){
   document.querySelectorAll('.error').forEach(el=>el.textContent='');
 }
 async function renderAdmin(){
-  $('content').innerHTML=heading('BEHEER','Accounts en dieren beheren.','Alleen het beheerdersaccount kan dierenartsregistraties goedkeuren en fictieve honden- en kattendossiers onderhouden.')+`<div id="admin-feedback" class="alert hidden"></div><div class="two admin-columns"><section class="card"><div class="overline">DIERENARTSEN</div><h2>Accountbeheer</h2><p>Nieuwe registraties zijn niet actief tot ze zijn goedgekeurd.</p><div id="admin-users" class="table-wrap">Laden…</div></section><section class="card"><div class="overline">HONDEN & KATTEN</div><h2>Dierbeheer</h2><div id="admin-animals" class="table-wrap">Laden…</div><h3 id="animal-form-title">Dier toevoegen</h3><form id="animal-form" class="form"><label>Chipnummer (15 cijfers)<input name="chip" pattern="[0-9]{15}" inputmode="numeric" required></label><label>Naam<input name="name" maxlength="100" required></label><label>Diersoort<select name="species" required><option value="Hond">Hond</option><option value="Kat">Kat</option></select></label><label>Ras<input name="breed" maxlength="100" required></label><button class="primary">Dier toevoegen →</button><button type="button" id="cancel-animal-edit" class="secondary hidden">Wijzigen annuleren</button></form></section></div><div class="alert warn">Beheeracties zijn bedoeld voor de fictieve pilot. Een eenmaal gekoppeld chipnummer kan niet worden verwijderd of gewijzigd.</div>`;
+  $('content').innerHTML=heading('BEHEER','Accounts en dieren beheren.','Alleen het beheerdersaccount kan dierenartsregistraties goedkeuren en fictieve honden- en kattendossiers onderhouden.')+`<div id="admin-feedback" class="alert hidden"></div><div class="two admin-columns"><section class="card"><div class="overline">DIERENARTSEN</div><h2>Accountbeheer</h2><p>Nieuwe registraties zijn niet actief tot ze zijn goedgekeurd.</p><div id="admin-users" class="table-wrap">Laden…</div><h3 id="vet-form-title">Dierenartsgegevens aanpassen</h3><form id="vet-form" class="form hidden"><label>Gebruikersnaam<input name="username" readonly required></label><label>Naam<input name="display" maxlength="100" required></label><label>Praktijknaam<input name="practice_id" maxlength="100" required></label><button class="primary">Gegevens opslaan →</button></form></section><section class="card"><div class="overline">HONDEN & KATTEN</div><h2>Dierbeheer</h2><div id="admin-animals" class="table-wrap">Laden…</div><h3 id="animal-form-title">Dier toevoegen</h3><form id="animal-form" class="form"><label>Chipnummer (15 cijfers)<input name="chip" pattern="[0-9]{15}" inputmode="numeric" required></label><label>Naam<input name="name" maxlength="100" required></label><label>Diersoort<select name="species" required><option value="Hond">Hond</option><option value="Kat">Kat</option></select></label><label>Ras<input name="breed" maxlength="100" required></label><button class="primary">Dier toevoegen →</button><button type="button" id="cancel-animal-edit" class="secondary hidden">Wijzigen annuleren</button></form></section></div><div class="alert warn">Beheeracties zijn bedoeld voor de fictieve pilot. Een eenmaal gekoppeld chipnummer kan niet worden verwijderd of gewijzigd.</div>`;
   try{
     const [users,animals]=await Promise.all([api('admin/users/list',{}),api('admin/animals/list',{})]);
-    $('admin-users').innerHTML=users.users.length?`<table><thead><tr><th>Account</th><th>Praktijk</th><th>Status</th><th>Acties</th></tr></thead><tbody>${users.users.map(v=>`<tr><td>${esc(v.display)}<small>${esc(v.id)}</small></td><td>${esc(v.practice_id)}</td><td>${esc(v.status)}</td><td class="actions">${v.active?`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="false">Deactiveren</button><button class="small-button" data-reset-code="${esc(v.id)}">Herstelcode</button>`:`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="true">Goedkeuren</button>`}</td></tr>`).join('')}</tbody></table>`:'Geen dierenartsaccounts.';
+    $('admin-users').innerHTML=users.users.length?`<table><thead><tr><th>Account</th><th>Praktijk</th><th>Status</th><th>Acties</th></tr></thead><tbody>${users.users.map(v=>`<tr><td>${esc(v.display)}<small>${esc(v.id)}</small></td><td>${esc(v.practice_id)}</td><td>${esc(v.status)}</td><td class="actions"><button class="small-button" data-edit-vet data-username="${esc(v.id)}" data-display="${esc(v.display)}" data-practice="${esc(v.practice_id)}">Gegevens</button>${v.active?`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="false">Deactiveren</button><button class="small-button" data-reset-code="${esc(v.id)}">Herstelcode</button>`:`<button class="small-button" data-user-status="${esc(v.id)}" data-approved="true">Goedkeuren</button>`}</td></tr>`).join('')}</tbody></table>`:'Geen dierenartsaccounts.';
     $('admin-animals').innerHTML=animals.animals.length?`<table><thead><tr><th>Dier</th><th>Soort / ras</th><th>Chipnummer</th><th></th></tr></thead><tbody>${animals.animals.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.species)} · ${esc(a.breed)}</td><td>${esc(a.chip)}</td><td><button class="small-button" data-edit-animal data-chip="${esc(a.chip)}" data-name="${esc(a.name)}" data-species="${esc(a.species)}" data-breed="${esc(a.breed)}">Bewerken</button></td></tr>`).join('')}</tbody></table>`:'Nog geen dieren.';
   }catch(err){$('admin-feedback').textContent=err.message;$('admin-feedback').classList.remove('hidden');}
 }
@@ -85,10 +85,23 @@ document.addEventListener('click',async e=>{
     form.elements.chip.readOnly=true;form.dataset.mode='update';
     $('animal-form-title').textContent='Dier bewerken';form.querySelector('.primary').textContent='Wijzigingen opslaan →';$('cancel-animal-edit').classList.remove('hidden');
     form.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const vetButton=e.target.closest('[data-edit-vet]');
+  if(vetButton&&token&&user.role==='admin'){
+    const form=$('vet-form');
+    form.elements.username.value=vetButton.dataset.username;form.elements.display.value=vetButton.dataset.display;form.elements.practice_id.value=vetButton.dataset.practice;
+    form.classList.remove('hidden');form.scrollIntoView({behavior:'smooth',block:'start'});
   }
 });
 document.addEventListener('submit',async e=>{
   const form=e.target;
+  if(form.id==='vet-form'){
+    e.preventDefault();const data=Object.fromEntries(new FormData(form));
+    try{await api('admin/users/update',data);form.reset();form.classList.add('hidden');await renderAdmin();}
+    catch(err){$('admin-feedback').textContent=err.message;$('admin-feedback').classList.remove('hidden');}
+    return;
+  }
   if(form.id==='animal-form'){
     e.preventDefault();const data=Object.fromEntries(new FormData(form));const mode=form.dataset.mode==='update'?'update':'create';
     try{await api('admin/animals/'+mode,data);form.reset();form.elements.chip.readOnly=false;delete form.dataset.mode;$('animal-form-title').textContent='Dier toevoegen';form.querySelector('.primary').textContent='Dier toevoegen →';$('cancel-animal-edit').classList.add('hidden');await renderAdmin();}

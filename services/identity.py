@@ -67,6 +67,14 @@ class Api(Handler):
                 if not cursor.rowcount:return self.error(404,'Dierenarts niet gevonden')
                 if not approved:c.execute('DELETE FROM sessions WHERE user_id=?',(name,))
             return self.send_json(200,{'ok':True})
+        if p=='/admin/users/update':
+            if not self.admin(str(data.get('token',''))):return self.error(403,'Alleen beheer heeft toegang')
+            name=str(data.get('username',''))[:64];display=str(data.get('display','')).strip();practice=str(data.get('practice_id','')).strip()
+            if not display or len(display)>100 or not practice or len(practice)>100:return self.error(400,'Naam en praktijk zijn verplicht (maximaal 100 tekens)')
+            with db('identity.sqlite3') as c:
+                cursor=c.execute("UPDATE users SET display=?,practice_id=? WHERE id=? AND role='veterinarian'",(display,practice,name))
+                if not cursor.rowcount:return self.error(404,'Dierenarts niet gevonden')
+            return self.send_json(200,{'ok':True})
         if p=='/admin/users/reset-code':
             if not self.admin(str(data.get('token',''))):return self.error(403,'Alleen beheer heeft toegang')
             name=str(data.get('username',''))[:64];code=secrets.token_urlsafe(24)
