@@ -41,7 +41,14 @@ def email_valid(value):
     if len(value)>254 or value.count('@')!=1:return False
     local=value.split('@',1)[0]
     if not local or len(local)>64 or local.startswith('.') or local.endswith('.') or '..' in local:return False
-    return re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+",value) is not None
+    local_chars=".!#$%&'*+/=?^_`{|}~-"
+    if any(not char.isascii() or not (char.isalnum() or char in local_chars) for char in local):return False
+    domain=value.split('@',1)[1]
+    labels=domain.split('.')
+    return len(domain)<=253 and len(labels)>=2 and all(
+        0<len(label)<=63 and label[0].isascii() and label[0].isalnum() and label[-1].isascii() and label[-1].isalnum()
+        and all(char.isascii() and (char.isalnum() or char=='-') for char in label)
+        for label in labels)
 def mfa_digest(challenge_id,user_id,code):
     key=os.environ.get('DIERSIGNAAL_MFA_SECRET') or os.environ.get('DIERSIGNAAL_INTERNAL_SECRET','')
     if len(key)<32:raise RuntimeError('MFA challenge secret is not configured')
